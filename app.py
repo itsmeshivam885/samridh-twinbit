@@ -2,74 +2,216 @@ import streamlit as st
 import pandas as pd
 import datetime
 import os
+import plotly.express as px
+import plotly.graph_objects as bg
 
 # ==============================================================================
-# 1. PAGE CONFIGURATION & THEME STYLING
+# 1. PAGE CONFIGURATION & ENTERPRISE DESIGN SYSTEM (WCAG 2.2 / MATERIAL 3)
 # ==============================================================================
 st.set_page_config(
-    page_title="SAMRIDH | PMFBY National Visual Analytics Portal",
-    page_icon="🇮🇳",
+    page_title="SAMRIDH | National AI Crop Analytics & PMFBY Visual Portal",
+    page_icon="🌾",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Government Portal Styling
+# Custom Glassmorphism, Modern CSS Typography, Animations, and Government Styling
 st.markdown("""
     <style>
-    .stApp {
-        background-color: #F8FAFC;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;600;700;800&display=swap');
+
+    /* Global CSS Variable System */
+    :root {
+        --primary: #2563EB;
+        --primary-dark: #1D4ED8;
+        --secondary: #0F172A;
+        --success: #10B981;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --accent: #14B8A6;
+        --bg-main: #F8FAFC;
+        --card-bg: #FFFFFF;
+        --text-main: #0F172A;
+        --text-muted: #64748B;
+        --border-color: #E2E8F0;
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --glass-border: rgba(226, 232, 240, 0.8);
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
-    
+
+    /* Reset Streamlit Base Appearance */
+    .stApp {
+        background: var(--bg-main);
+        font-family: 'Inter', sans-serif;
+        color: var(--text-main);
+    }
+
+    /* Animated Tricolor Top Accent Line */
     .tricolor-bar {
         height: 6px;
+        width: 100%;
         background: linear-gradient(90deg, #FF9933 0%, #FF9933 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #138808 66.6%, #138808 100%);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         border-radius: 4px 4px 0 0;
-        margin-bottom: 0px;
     }
 
-    .gov-badge {
-        background-color: rgba(30, 58, 138, 0.08);
-        color: #1E3A8A;
-        padding: 4px 14px;
-        border-radius: 20px;
+    /* Glassmorphic Government Banner Header */
+    .gov-hero-header {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 58, 138, 0.95) 100%);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 24px 32px;
+        border-radius: 0 0 20px 20px;
+        color: #FFFFFF;
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 28px;
+        transition: transform 0.3s ease;
+    }
+    
+    .gov-hero-header:hover {
+        border-color: rgba(20, 184, 166, 0.4);
+    }
+
+    /* Badge Pills */
+    .gov-chip {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: #F8FAFC;
+        padding: 6px 16px;
+        border-radius: 50px;
         font-size: 0.82rem;
         font-weight: 700;
-        border: 1px solid rgba(30, 58, 138, 0.2);
-        display: inline-block;
-        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
     }
 
-    .gov-subtext {
-        color: #059669;
-        font-size: 0.98rem;
-        font-weight: 600;
-        margin-top: 4px;
-    }
-
-    .gov-card {
-        background-color: #FFFFFF;
+    /* Custom Metric Cards */
+    .metric-card-wrapper {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
         padding: 20px;
-        border-radius: 10px;
-        border-top: 4px solid #1E3A8A;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        margin-bottom: 18px;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
     }
 
-    .gov-card-success {
-        border-top: 4px solid #059669;
+    .metric-card-wrapper:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary);
     }
 
-    div.stButton > button:first-child {
-        border-radius: 6px;
+    .metric-title {
+        font-size: 0.875rem;
         font-weight: 600;
-        letter-spacing: 0.3px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .metric-value {
+        font-size: 1.875rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 6px 0;
+        font-family: 'Manrope', sans-serif;
+    }
+
+    /* Status Badges */
+    .badge-status {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        display: inline-block;
+    }
+    .badge-approved { background-color: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+    .badge-pending { background-color: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+    .badge-rejected { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+    .badge-fraud { background-color: #F3E8FF; color: #6B21A8; border: 1px solid #E9D5FF; }
+
+    /* Custom Input & Button Styling Overrides */
+    div.stButton > button:first-child {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: #FFFFFF;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 24px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        transition: all 0.2s ease-in-out;
+    }
+
+    div.stButton > button:first-child:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+        background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    }
+
+    /* Form Input Fields */
+    .stTextInput>div>div>input, .stSelectbox>div>div>div, .stTextArea>div>div>textarea {
+        border-radius: 10px !important;
+        border: 1px solid var(--border-color) !important;
+        background-color: #FFFFFF !important;
+        font-family: 'Inter', sans-serif !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .stTextInput>div>div>input:focus, .stSelectbox>div>div>div:focus, .stTextArea>div>div>textarea:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    }
+
+    /* Sidebar Styling */
+    section[data-testid="stSidebar"] {
+        background-color: #FFFFFF !important;
+        border-right: 1px solid var(--border-color);
+    }
+
+    /* Tab Custom Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 12px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 48px;
+        border-radius: 8px 8px 0 0;
+        padding: 0 20px;
+        font-weight: 600;
+        color: var(--text-muted);
+        background-color: transparent;
+        border: none;
+        transition: all 0.2s ease;
+    }
+
+    .stTabs [aria-selected="true"] {
+        color: var(--primary) !important;
+        border-bottom: 3px solid var(--primary) !important;
+        background-color: rgba(37, 99, 235, 0.05) !important;
+    }
+
+    /* Footer Styling */
+    .footer-box {
+        text-align: center;
+        padding: 24px;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        border-top: 1px solid var(--border-color);
+        margin-top: 40px;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 2. SHARED SESSION STATE DATA
+# 2. SHARED SESSION STATE DATA (EXACT UNTOUCHED BACKEND LOGIC)
 # ==============================================================================
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
@@ -137,82 +279,107 @@ if "claims_db" not in st.session_state:
     ]
 
 # ==============================================================================
-# 3. NATIONAL GOV HEADER & DUAL LOGO BANNER (UPDATED IMAGE PATHS)
+# 3. ENTERPRISE HERO HEADER BANNER
 # ==============================================================================
 st.markdown('<div class="tricolor-bar"></div>', unsafe_allow_html=True)
 
-h_col1, h_col2, h_col3 = st.columns([1.2, 4.5, 1.3])
+header_left, header_mid, header_right = st.columns([1.2, 4.5, 1.3])
 
-# Left Side: SAMRIDH Logo
-with h_col1:
+with header_left:
     samridh_path = os.path.join("images", "samridh_logo.png")
     if os.path.exists(samridh_path):
-        st.image(samridh_path, width=140)
+        st.image(samridh_path, width=130)
     elif os.path.exists("samridh_logo.png"):
-        st.image("samridh_logo.png", width=140)
+        st.image("samridh_logo.png", width=130)
     else:
-        st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>🌾</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='font-size: 3rem; margin:0;'>🌾</h1>", unsafe_allow_html=True)
 
-# Center Title
-with h_col2:
+with header_mid:
     st.markdown("""
-    <div style="text-align: center;">
-        <div class="gov-badge">🇮🇳 GOVERNMENT OF INDIA | MINISTRY OF AGRICULTURE & FARMERS WELFARE</div>
-        <h1 style='margin: 0; color: #0F172A; font-weight: 800; font-size: 2.2rem;'>समृद्धि (SAMRIDH) PORTAL</h1>
-        <div class="gov-subtext">AI-Based Real-Time Crop Visual Analytics & Fraud-Resistant Loss Verification System</div>
-        <small style='color: #64748B;'>PMFBY CROPIC Digital Infrastructure | Designed by <b>Team TwinBit</b> (ID: <b>svh-10104</b> | PS: <b>SVH26007</b>)</small>
-    </div>
+        <div style="text-align: center;">
+            <div class="gov-chip">
+                <span>🇮🇳</span> GOVERNMENT OF INDIA | MINISTRY OF AGRICULTURE & FARMERS WELFARE
+            </div>
+            <h1 style='margin: 8px 0 4px 0; color: #0F172A; font-family: "Manrope", sans-serif; font-weight: 800; font-size: 2.2rem; letter-spacing: -0.02em;'>
+                समृद्धि (SAMRIDH) PORTAL
+            </h1>
+            <p style='margin: 0; color: #2563EB; font-weight: 600; font-size: 1.05rem;'>
+                AI-Based Real-Time Crop Visual Analytics & Fraud-Resistant Loss Verification Platform
+            </p>
+            <p style='margin-top: 4px; color: #64748B; font-size: 0.85rem; font-weight: 500;'>
+                PMFBY CROPIC Infrastructure | Designed by <b>Team TwinBit</b> (ID: <b>svh-10104</b> | PS: <b>SVH26007</b>)
+            </p>
+        </div>
     """, unsafe_allow_html=True)
 
-# Right Side: TwinBit Logo
-with h_col3:
+with header_right:
     twinbit_jpeg = os.path.join("images", "twinbit_logo.jpeg")
-    twinbit_jpg = os.path.join("images", "twinbit_logo.jpg")
-    twinbit_png = os.path.join("images", "twinbit_logo.png")
-    
     if os.path.exists(twinbit_jpeg):
-        st.image(twinbit_jpeg, width=130)
-    elif os.path.exists(twinbit_jpg):
-        st.image(twinbit_jpg, width=130)
-    elif os.path.exists(twinbit_png):
-        st.image(twinbit_png, width=130)
+        st.image(twinbit_jpeg, width=120)
     elif os.path.exists("twinbit_logo.jpeg"):
-        st.image("twinbit_logo.jpeg", width=130)
+        st.image("twinbit_logo.jpeg", width=120)
     else:
-        st.markdown("<h1 style='text-align: center; color: #059669;'>⚡</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 style='font-size: 3rem; margin:0; text-align:right;'>⚡</h1>", unsafe_allow_html=True)
 
-st.divider()
+st.markdown("<hr style='margin: 12px 0 24px 0; border: none; height: 1px; background-color: #E2E8F0;'>", unsafe_allow_html=True)
 
 # ==============================================================================
 # 4. SIDEBAR NAVIGATION & PORTAL SELECTOR
 # ==============================================================================
-st.sidebar.markdown("### 🏛️ National Portal Gateway")
+st.sidebar.markdown("""
+    <div style='padding: 8px 0;'>
+        <h3 style='margin: 0; color: #0F172A; font-size: 1.1rem; font-weight: 700;'>🏛️ National Portal Gateway</h3>
+        <p style='margin: 2px 0 12px 0; color: #64748B; font-size: 0.8rem;'>Select access portal role:</p>
+    </div>
+""", unsafe_allow_html=True)
 
-# Display TwinBit logo in sidebar
 if os.path.exists(twinbit_jpeg):
-    st.sidebar.image(twinbit_jpeg, width=110, caption="Designed by Team TwinBit")
+    st.sidebar.image(twinbit_jpeg, width=100)
 
 if st.session_state.authenticated:
-    st.sidebar.success(f"👤 Authenticated User:\n\n**{st.session_state.current_user}**\n\nRole: **{st.session_state.user_role}**")
+    st.sidebar.markdown(f"""
+        <div style='background-color: #F0FDF4; border: 1px solid #BBF7D0; padding: 12px; border-radius: 10px; margin-bottom: 16px;'>
+            <div style='font-size: 0.75rem; color: #166534; font-weight: 700; text-transform: uppercase;'>Session Active</div>
+            <div style='font-size: 0.95rem; color: #0F172A; font-weight: 700;'>{st.session_state.current_user}</div>
+            <div style='font-size: 0.8rem; color: #15803D;'>Role: {st.session_state.user_role}</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
     if st.sidebar.button("🔒 Logout / Switch Portal", use_container_width=True):
         st.session_state.authenticated = False
         st.session_state.user_role = None
         st.session_state.current_user = None
         st.rerun()
 
-st.sidebar.caption("Select Access Portal:")
 portal_choice = st.sidebar.radio(
-    "Choose Role Portal:",
+    "Choose User Role Portal:",
     ["🧑‍🌾 Farmer Portal (किसान पोर्टल)", "👮 Field Officer Portal (अधिकारी पोर्टल)", "🛠️ National Admin Console (राष्ट्रीय एडमिन)"]
 )
 
-st.sidebar.divider()
+st.sidebar.markdown("<hr style='margin: 20px 0;'>", unsafe_allow_html=True)
 st.sidebar.markdown("""
-**Official System Status:** 🟢 PMFBY Gateway Connected  
-📡 PostGIS Spatial Server Active  
-🛡️ pHash Fraud Engine Online  
-⚡ Edge OpenCV Quality Gate Active  
-""")
+    <div style='font-size: 0.8rem; color: #64748B;'>
+        <strong>System Diagnostic:</strong><br>
+        🟢 PMFBY Gateway Connected<br>
+        📡 PostGIS Spatial Engine Online<br>
+        🛡️ 64-bit pHash Verification Active<br>
+        ⚡ C++ OpenCV Edge Gate Active
+    </div>
+""", unsafe_allow_html=True)
+
+# Helper Function for Reusable Custom Metric Cards
+def render_metric_card(title, value, delta=None, delta_color="green"):
+    delta_html = ""
+    if delta:
+        color = "#10B981" if delta_color == "green" else "#EF4444"
+        delta_html = f"<span style='color: {color}; font-size: 0.85rem; font-weight: 600; margin-left: 8px;'>{delta}</span>"
+    
+    return f"""
+        <div class="metric-card-wrapper">
+            <div class="metric-title">{title}</div>
+            <div class="metric-value">{value} {delta_html}</div>
+        </div>
+    """
 
 # ==============================================================================
 # 🧑‍🌾 1. FARMER PORTAL
@@ -221,6 +388,7 @@ if portal_choice == "🧑‍🌾 Farmer Portal (किसान पोर्ट�
     st.markdown("## 🧑‍🌾 Farmer Registration & Crop Loss Claims Portal")
     st.caption("Pradhan Mantri Fasal Bima Yojana (PMFBY) — Direct Farmer Services")
     
+    # FARMER LOGIN FORM
     if not st.session_state.authenticated or st.session_state.user_role != "Farmer":
         st.info("🔐 Complete the required fields to authenticate through the PMFBY Gateway.")
         
@@ -249,10 +417,12 @@ if portal_choice == "🧑‍🌾 Farmer Portal (किसान पोर्ट�
 
     else:
         st.markdown(f"""
-        <div class="gov-card gov-card-success">
-            <h4>✅ Authenticated Farmer Session</h4>
-            <p style='margin:0;'>Welcome, <b>{st.session_state.current_user}</b> | Farmer ID: <b>FARM-UP-2026-8812</b> | Registered Parcel: <b>Khata No. 442, Plot 18B (Kalyanpur)</b></p>
-        </div>
+            <div style="background: #FFFFFF; border-left: 4px solid #10B981; padding: 16px 20px; border-radius: 12px; box-shadow: var(--shadow-sm); margin-bottom: 24px;">
+                <h4 style="margin: 0; color: #0F172A;">✅ Authenticated Farmer Session</h4>
+                <p style="margin: 4px 0 0 0; color: #475569; font-size: 0.9rem;">
+                    Welcome, <b>{st.session_state.current_user}</b> | Farmer ID: <b>FARM-UP-2026-8812</b> | Registered Parcel: <b>Khata No. 442, Plot 18B (Kalyanpur)</b>
+                </p>
+            </div>
         """, unsafe_allow_html=True)
         
         tab1, tab2, tab3, tab4 = st.tabs([
@@ -281,7 +451,14 @@ if portal_choice == "🧑‍🌾 Farmer Portal (किसान पोर्ट�
                     })
             with col_b:
                 st.markdown("**Registered Parcel Cadastral Map (PostGIS Polygon):**")
-                st.image("https://placehold.co/600x320/0f172a/ffffff?text=PostGIS+Cadastral+Parcel+Boundary+(Kalyanpur+Plot+18B)", use_container_width=True)
+                
+                # Interactive Geofence Plotly Visual
+                fig_geo = px.scatter_mapbox(
+                    pd.DataFrame({"lat": [26.8467], "lon": [80.9462], "label": ["Plot 18B Centroid"]}),
+                    lat="lat", lon="lon", hover_name="label", zoom=14, height=280
+                )
+                fig_geo.update_layout(mapbox_style="carto-positron", margin={"r":0,"t":0,"l":0,"b":0})
+                st.plotly_chart(fig_geo, use_container_width=True)
 
         with tab2:
             st.markdown("### 📸 Periodic Crop Image Capture & Edge Quality Gate")
@@ -307,17 +484,18 @@ if portal_choice == "🧑‍🌾 Farmer Portal (किसान पोर्ट�
                     st.success("✅ Passed On-Device Edge Quality Gate & Multi-Layer Anti-Fraud Inspection!")
                     
                     d1, d2, d3 = st.columns(3)
-                    d1.metric("Laplacian Blur Variance", "142.5", delta="PASSED (> 100)")
-                    d2.metric("YUV Mean Luminance", "135 Y", delta="PASSED (40-220)")
-                    d3.metric("pHash Duplicate Check", "64-bit Unique", delta="PASSED (Dh = 18)")
+                    d1.markdown(render_metric_card("Laplacian Blur Variance", "142.5", "PASSED (>100)", "green"), unsafe_allow_html=True)
+                    d2.markdown(render_metric_card("YUV Mean Luminance", "135 Y", "PASSED (40-220)", "green"), unsafe_allow_html=True)
+                    d3.markdown(render_metric_card("pHash Duplicate Check", "64-bit", "PASSED (Dh=18)", "green"), unsafe_allow_html=True)
                     
+                    st.markdown("<br>", unsafe_allow_html=True)
                     st.markdown("""
-                    <div class="gov-card gov-card-success">
-                        <h4>🟢 AI Crop Advisory Feedback (Real-Time Engine)</h4>
-                        <p><strong>YOLOv11 Canopy Detection:</strong> Healthy Wheat Structure Identified (98.2% Confidence)</p>
-                        <p><strong>EfficientNet Stage Classifier:</strong> Flowering Stage Confirmed</p>
-                        <p><strong>Vision Transformer (ViT) Disease Scan:</strong> No severe pest infestation or fungal disease detected.</p>
-                    </div>
+                        <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-top: 4px solid #10B981; padding: 20px; border-radius: 12px;">
+                            <h4 style="margin: 0 0 8px 0; color: #0F172A;">🟢 AI Crop Advisory Feedback (Real-Time Engine)</h4>
+                            <p style="margin: 4px 0;"><strong>YOLOv11 Canopy Detection:</strong> Healthy Wheat Structure Identified (98.2% Confidence)</p>
+                            <p style="margin: 4px 0;"><strong>EfficientNet Stage Classifier:</strong> Flowering Stage Confirmed</p>
+                            <p style="margin: 4px 0;"><strong>Vision Transformer (ViT) Disease Scan:</strong> No severe pest infestation or fungal disease detected.</p>
+                        </div>
                     """, unsafe_allow_html=True)
                 else:
                     st.warning("Please upload a crop image first.")
@@ -402,17 +580,17 @@ elif portal_choice == "👮 Field Officer Portal (अधिकारी पो�
     else:
         st.caption(f"Authenticated Officer: **{st.session_state.current_user}** | ID: **OFF-UP-2026-104** | District: **Kanpur Nagar (UP)**")
         
-        m1, m2, m3, m4 = st.columns(4)
         pending_count = len([c for c in st.session_state.claims_db if c['Status'] == 'Pending Review'])
         approved_count = len([c for c in st.session_state.claims_db if c['Status'] == 'Approved'])
         rejected_count = len([c for c in st.session_state.claims_db if c['Status'] == 'Rejected'])
         
-        m1.metric("Assigned Villages", "12 Villages")
-        m2.metric("Pending Claim Queue", f"{pending_count} Claims")
-        m3.metric("Approved Claims", f"{approved_count} Claims")
-        m4.metric("Flagged Fraud Alerts", f"{rejected_count} Cases", delta="-1", delta_color="inverse")
+        m1, m2, m3, m4 = st.columns(4)
+        m1.markdown(render_metric_card("Assigned Villages", "12 Villages"), unsafe_allow_html=True)
+        m2.markdown(render_metric_card("Pending Queue", f"{pending_count} Claims"), unsafe_allow_html=True)
+        m3.markdown(render_metric_card("Approved Claims", f"{approved_count} Claims", "Active Payouts", "green"), unsafe_allow_html=True)
+        m4.markdown(render_metric_card("Fraud Flagged", f"{rejected_count} Cases", "Blocked", "red"), unsafe_allow_html=True)
         
-        st.divider()
+        st.markdown("<br>", unsafe_allow_html=True)
         
         st.markdown("### 📋 AI-Ranked Priority Claim Review Queue")
         claims_df = pd.DataFrame(st.session_state.claims_db)
@@ -429,7 +607,18 @@ elif portal_choice == "👮 Field Officer Portal (अधिकारी पो�
         
         with col_x:
             st.markdown("#### 1. Farmer Upload vs AI SegFormer Loss Assessment")
-            st.image("https://placehold.co/500x300/1e293b/ffffff?text=Farmer+Loss+Upload+Image", caption=f"Loss Submission ({c_data['Loss_Type']})")
+            
+            # Simulated Computer Vision Damage Heatmap
+            fig_loss = px.imshow(
+                [[0.1, 0.8, 0.9], [0.2, 0.7, 0.8], [0.1, 0.3, 0.6]],
+                labels=dict(color="Damage Severity"),
+                x=['Sector A', 'Sector B', 'Sector C'],
+                y=['Row 1', 'Row 2', 'Row 3'],
+                color_continuous_scale="Reds", height=260
+            )
+            fig_loss.update_layout(margin={"r":0,"t":25,"l":0,"b":0})
+            st.plotly_chart(fig_loss, use_container_width=True)
+            
             st.write(f"**Farmer Name:** {c_data['Farmer_Name']}")
             st.write(f"**Village:** {c_data['Village']}")
             st.write(f"**Reported Damage:** {c_data['Reported_Damage_Pct']}%")
@@ -437,7 +626,17 @@ elif portal_choice == "👮 Field Officer Portal (अधिकारी पो�
 
         with col_y:
             st.markdown("#### 2. Satellite & Weather Triangulation")
-            st.image("https://placehold.co/500x300/0284c7/ffffff?text=Sentinel-2+Temporal+NDVI+Curve+Drop", caption="Copernicus Sentinel-2 Satellite NDVI Time-Series")
+            
+            # Interactive Time-Series Satellite NDVI Curve
+            ndvi_df = pd.DataFrame({
+                "Date": ["Jan 10", "Jan 25", "Feb 10", "Feb 28"],
+                "NDVI Index": [0.78, 0.82, 0.85, 0.42]
+            })
+            fig_ndvi = px.line(ndvi_df, x="Date", y="NDVI Index", markers=True, title="Sentinel-2 Temporal Vegetation Drop", height=260)
+            fig_ndvi.update_traces(line_color="#EF4444", line_width=3)
+            fig_ndvi.update_layout(margin={"r":0,"t":30,"l":0,"b":0})
+            st.plotly_chart(fig_ndvi, use_container_width=True)
+            
             st.write(f"**Satellite NDVI Drop:** {c_data['NDVI_Drop_Pct']}% (Anomalous Vegetation Drop)")
             st.write(f"**IMD Weather Event:** {c_data['Weather_Event']}")
             st.write(f"**Anti-Fraud pHash Check:** {c_data['pHash_Match']}")
@@ -495,14 +694,14 @@ elif portal_choice == "🛠️ National Admin Console (राष्ट्री�
         st.caption(f"Authenticated Administrator: **{st.session_state.current_user}** | Admin Code: **ADM-MOA-2026-001**")
 
         a1, a2, a3, a4 = st.columns(4)
-        a1.metric("Active Pilot Districts", "50 / 50 Districts")
-        a2.metric("Total Enrolled Farmers", "482,190")
-        a3.metric("Fraud Interception Rate", "98.4%", delta="+2.1%")
-        a4.metric("Avg Settlement Speed", "3.2 Days", delta="-11.8 Days")
+        a1.markdown(render_metric_card("Pilot Districts", "50 / 50"), unsafe_allow_html=True)
+        a2.markdown(render_metric_card("Enrolled Farmers", "482,190"), unsafe_allow_html=True)
+        a3.markdown(render_metric_card("Fraud Interception", "98.4%", "+2.1%", "green"), unsafe_allow_html=True)
+        a4.markdown(render_metric_card("Settlement Speed", "3.2 Days", "-11.8 Days", "green"), unsafe_allow_html=True)
 
-        st.divider()
+        st.markdown("<br>", unsafe_allow_html=True)
 
-        admin_tab1, admin_tab2 = st.tabs(["📊 District Loss & Crop Health Heatmap", "🛡️ Multi-Layer Fraud Prevention Performance"])
+        admin_tab1, admin_tab2 = st.tabs(["📊 District Loss & Crop Health Analytics", "🛡️ Multi-Layer Fraud Prevention Performance"])
 
         with admin_tab1:
             st.markdown("### 🌐 District-Wise PMFBY Monitoring Status")
@@ -514,7 +713,14 @@ elif portal_choice == "🛠️ National Admin Console (राष्ट्री�
                 "Reported Loss %": [14.2, 8.1, 28.5, 4.2, 22.1],
                 "System Alert": ["Normal Operations", "Normal Operations", "⚠️ High Loss (Flood)", "Normal Operations", "⚠️ High Loss (Rain)"]
             })
-            st.dataframe(district_summary, use_container_width=True)
+            
+            col_d1, col_d2 = st.columns([1.5, 1])
+            with col_d1:
+                st.dataframe(district_summary, use_container_width=True)
+            with col_d2:
+                fig_dist = px.pie(district_summary, values="Claims Submitted", names="District", title="National Claim Volume Share", hole=0.4, height=280)
+                fig_dist.update_layout(margin={"r":0,"t":30,"l":0,"b":0})
+                st.plotly_chart(fig_dist, use_container_width=True)
 
         with admin_tab2:
             st.markdown("### 🛡️ Multi-Layer Anti-Fraud Gateway Summary")
@@ -538,12 +744,17 @@ elif portal_choice == "🛠️ National Admin Console (राष्ट्री�
             st.table(fraud_summary)
 
 # ==============================================================================
-# 5. FOOTER
+# 5. ENTERPRISE FOOTER
 # ==============================================================================
 st.divider()
 st.markdown("""
-<div style="text-align: center; color: #64748B; padding: 10px;">
-    SAMRIDH Continuous Visual Ledger Platform | PMFBY CROPIC Initiative<br>
-    Built for Smart VIT Hackathon 2026 | <b>Team TwinBit</b> (SVH26007)
-</div>
+    <div class="footer-box">
+        <p style="margin: 0; font-weight: 600; color: #0F172A;">
+            SAMRIDH Continuous Visual Ledger Platform | PMFBY CROPIC Initiative
+        </p>
+        <p style="margin: 4px 0 0 0; color: #64748B;">
+            Ministry of Agriculture & Farmers Welfare, Government of India<br>
+            Built for Smart VIT Hackathon 2026 | <b>Team TwinBit</b> (Team ID: <b>svh-10104</b> | Problem Statement: <b>SVH26007</b>)
+        </p>
+    </div>
 """, unsafe_allow_html=True)
