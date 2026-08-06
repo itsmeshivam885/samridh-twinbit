@@ -595,18 +595,18 @@ with header_mid:
     st.markdown("""
         <div style="text-align: center;">
             <div class="gov-chip">🇮🇳&nbsp; GOVERNMENT OF INDIA &nbsp;|&nbsp; MINISTRY OF AGRICULTURE &amp; FARMERS WELFARE</div>
-            <div class="hero-title">समृद्धि (SAMRIDH) PORTAL</div>
+            <div class="hero-title">समृद्ध (SAMRIDH) PORTAL</div>
             <p class="hero-subtitle">AI-Based Real-Time Crop Visual Analytics &amp; Fraud-Resistant Loss Verification Platform</p>
             <p class="hero-caption">PMFBY CROPIC Infrastructure &nbsp;•&nbsp; Designed by <b>Team TwinBit</b> (ID: <b>svh-10104</b> | PS: <b>SVH26007</b>)</p>
         </div>
     """, unsafe_allow_html=True)
 
 with header_right:
-    twinbit_jpeg = os.path.join("images", "twinbit_logo.jpeg")
-    if os.path.exists(twinbit_jpeg):
-        st.image(twinbit_jpeg, width=110)
-    elif os.path.exists("twinbit_logo.jpeg"):
-        st.image("twinbit_logo.jpeg", width=110)
+    twinbit_jpg = os.path.join("images", "twinbit_logo.jpg")
+    if os.path.exists(twinbit_jpg):
+        st.image(twinbit_jpg, width=110)
+    elif os.path.exists("twinbit_logo.jpg"):
+        st.image("twinbit_logo.jpg", width=110)
     else:
         st.markdown("<div style='font-size: 2.6rem; margin:0; text-align:right;'>⚡</div>", unsafe_allow_html=True)
 
@@ -620,8 +620,8 @@ st.sidebar.markdown("""
     <p class="sidebar-caption">Select your access portal role below</p>
 """, unsafe_allow_html=True)
 
-if os.path.exists(twinbit_jpeg):
-    st.sidebar.image(twinbit_jpeg, width=90)
+if os.path.exists(twinbit_jpg):
+    st.sidebar.image(twinbit_jpg, width=90)
 
 if st.session_state.authenticated:
     _initials = "".join([p[0] for p in st.session_state.current_user.split()[:2]]).upper() if st.session_state.current_user else "U"
