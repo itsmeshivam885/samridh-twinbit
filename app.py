@@ -609,55 +609,81 @@ if "claims_db" not in st.session_state:
 # ==============================================================================
 # 3. ENTERPRISE HERO HEADER BANNER
 # ==============================================================================
+import base64
+
+def _img_data_uri(path):
+    """Read a local image file and return a base64 data URI, or None if missing."""
+    try:
+        if not os.path.exists(path):
+            return None
+        ext = os.path.splitext(path)[1].lower().replace(".", "")
+        mime = "jpeg" if ext in ("jpg", "jpeg") else ext
+        with open(path, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode("utf-8")
+        return f"data:image/{mime};base64,{encoded}"
+    except Exception:
+        return None
+
+def _find_logo(*candidate_paths):
+    for p in candidate_paths:
+        uri = _img_data_uri(p)
+        if uri:
+            return uri
+    return None
+
+samridh_logo_uri = _find_logo(
+    os.path.join("images", "samridh_logo.png"),
+    "samridh_logo.png"
+)
+twinbit_logo_uri = _find_logo(
+    os.path.join("images", "twinbit_logo.jpeg"),
+    os.path.join("images", "twinbit_logo.jpg"),
+    "twinbit_logo.jpeg",
+    "twinbit_logo.jpg"
+)
+
+samridh_logo_html = (
+    f'<img src="{samridh_logo_uri}" style="width:110px; height:110px; object-fit:contain; border-radius:16px; background:#FFFFFF; padding:6px; box-shadow: var(--shadow-md);">'
+    if samridh_logo_uri else
+    '<div style="font-size:3.2rem; text-align:center;">🌾</div>'
+)
+twinbit_logo_html = (
+    f'<img src="{twinbit_logo_uri}" style="width:100px; height:100px; object-fit:contain; border-radius:16px; background:#FFFFFF; padding:6px; box-shadow: var(--shadow-md);">'
+    if twinbit_logo_uri else
+    '<div style="font-size:2.6rem; text-align:right;">⚡</div>'
+)
+
 st.markdown('<div class="tricolor-bar"></div>', unsafe_allow_html=True)
 
-st.markdown('<div class="gov-hero-header">', unsafe_allow_html=True)
-header_left, header_mid, header_right = st.columns([1.1, 4.6, 1.2])
-
-with header_left:
-    samridh_path = os.path.join("images", "samridh_logo.png")
-    if os.path.exists(samridh_path):
-        st.image(samridh_path, width=120)
-    elif os.path.exists("samridh_logo.png"):
-        st.image("samridh_logo.png", width=120)
-    else:
-        st.markdown("<div style='font-size: 3.2rem; margin:0; text-align:center;'>🌾</div>", unsafe_allow_html=True)
-
-with header_mid:
-    st.markdown("""
-        <div style="text-align: center;">
-            <div class="gov-chip">🇮🇳&nbsp; GOVERNMENT OF INDIA &nbsp;|&nbsp; MINISTRY OF AGRICULTURE &amp; FARMERS WELFARE</div>
-            <div class="hero-title"><span class="hindi-part">समृद्धि</span> <span class="brand-part">SAMRIDH</span> <span class="hindi-part">PORTAL</span></div>
-            <p class="hero-subtitle">AI-Based Real-Time Crop Visual Analytics &amp; Fraud-Resistant Loss Verification Platform</p>
-            <p class="hero-caption">An Initiative under Pradhan Mantri Fasal Bima Yojana (PMFBY) &nbsp;•&nbsp; Developed &amp; Maintained by <b>Team TwinBit</b></p>
-            <div class="scheme-ribbon">
-                <span class="scheme-chip">🌾 PMFBY</span>
-                <span class="scheme-chip">💰 PM-KISAN</span>
-                <span class="scheme-chip">🧪 Soil Health Card</span>
-                <span class="scheme-chip">🛰️ CROPIC Satellite Mission</span>
-                <span class="scheme-chip">🖥️ Digital India</span>
-                <span class="scheme-chip">🏦 Direct Benefit Transfer</span>
+st.markdown(f"""
+    <div class="gov-hero-header">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+            <div style="flex:0 0 auto;">{samridh_logo_html}</div>
+            <div style="flex:1 1 auto; text-align:center; min-width:280px;">
+                <div class="gov-chip">🇮🇳&nbsp; GOVERNMENT OF INDIA &nbsp;|&nbsp; MINISTRY OF AGRICULTURE &amp; FARMERS WELFARE</div>
+                <div class="hero-title"><span class="hindi-part">समृद्धि</span> <span class="brand-part">SAMRIDH</span> <span class="hindi-part">PORTAL</span></div>
+                <p class="hero-subtitle">AI-Based Real-Time Crop Visual Analytics &amp; Fraud-Resistant Loss Verification Platform</p>
+                <p class="hero-caption">An Initiative under Pradhan Mantri Fasal Bima Yojana (PMFBY) &nbsp;•&nbsp; Developed &amp; Maintained by <b>Team TwinBit</b></p>
+                <div class="scheme-ribbon">
+                    <span class="scheme-chip">🌾 PMFBY</span>
+                    <span class="scheme-chip">💰 PM-KISAN</span>
+                    <span class="scheme-chip">🧪 Soil Health Card</span>
+                    <span class="scheme-chip">🛰️ CROPIC Satellite Mission</span>
+                    <span class="scheme-chip">🖥️ Digital India</span>
+                    <span class="scheme-chip">🏦 Direct Benefit Transfer</span>
+                </div>
             </div>
+            <div style="flex:0 0 auto;">{twinbit_logo_html}</div>
         </div>
-    """, unsafe_allow_html=True)
+    </div>
+""", unsafe_allow_html=True)
 
-with header_right:
-    twinbit_jpeg = os.path.join("images", "twinbit_logo.jpeg")
-    twinbit_jpg = os.path.join("images", "twinbit_logo.jpg")
-    if os.path.exists(twinbit_jpeg):
-        st.image(twinbit_jpeg, width=110)
-    elif os.path.exists(twinbit_jpg):
-        twinbit_jpeg = twinbit_jpg
-        st.image(twinbit_jpg, width=110)
-    elif os.path.exists("twinbit_logo.jpeg"):
-        st.image("twinbit_logo.jpeg", width=110)
-    elif os.path.exists("twinbit_logo.jpg"):
-        twinbit_jpeg = "twinbit_logo.jpg"
-        st.image("twinbit_logo.jpg", width=110)
-    else:
-        st.markdown("<div style='font-size: 2.6rem; margin:0; text-align:right;'>⚡</div>", unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
+# Keep a plain path reference available for the sidebar logo lookup below
+twinbit_jpeg = os.path.join("images", "twinbit_logo.jpeg")
+if not os.path.exists(twinbit_jpeg):
+    _alt = os.path.join("images", "twinbit_logo.jpg")
+    if os.path.exists(_alt):
+        twinbit_jpeg = _alt
 
 # ==============================================================================
 # 4. SIDEBAR NAVIGATION & PORTAL SELECTOR
