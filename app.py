@@ -61,6 +61,20 @@ st.markdown("""
     #MainMenu, footer, header[data-testid="stHeader"] { background: transparent; }
     .block-container { padding-top: 1.2rem; max-width: 1300px; }
 
+    /* ---------- Theme-Lock: identical, readable appearance regardless of the
+       viewer's light / dark / system preference. We pin our own explicit
+       light design system so text never inherits an inverted theme color. ---------- */
+    html { color-scheme: light; }
+    .stApp, .stApp * { color: var(--text-main); }
+    [data-testid="stAppViewContainer"], [data-testid="stMain"],
+    section[data-testid="stSidebar"], div[data-testid="stForm"] { color-scheme: light; }
+    [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * { color: var(--text-muted) !important; }
+    [data-testid="stMarkdownContainer"] p, [data-testid="stMarkdownContainer"] li,
+    [data-testid="stMarkdownContainer"] span, [data-testid="stText"] { color: var(--text-main); }
+    [data-testid="stWidgetLabel"] p, [data-testid="stWidgetLabel"] label { color: var(--text-main) !important; }
+    div[data-testid="stJson"], div[data-testid="stJson"] * { color: var(--text-main) !important; }
+    div[data-testid="stDataFrame"] * , div[data-testid="stTable"] * { color: var(--text-main) !important; }
+
     ::-webkit-scrollbar { width: 9px; height: 9px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 20px; }
@@ -77,6 +91,37 @@ st.markdown("""
 
     .fade-up { animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
     .fade-in { animation: fadeIn 0.6s ease both; }
+
+    /* ---------- Government Utility Bar (GIGW-style accessibility strip) ---------- */
+    .gov-utility-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        background: #0B1F3A;
+        color: #E2E8F0;
+        padding: 6px 22px;
+        font-size: 0.74rem;
+        font-weight: 500;
+        border-radius: 8px 8px 0 0;
+    }
+    .gov-utility-bar a, .gov-utility-bar .util-btn {
+        color: #CBD5E1;
+        text-decoration: none;
+        margin-right: 14px;
+        cursor: default;
+    }
+    .gov-utility-bar .util-btn {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 5px;
+        padding: 1px 8px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        margin-right: 6px;
+    }
+    .gov-utility-left, .gov-utility-right { display: flex; align-items: center; flex-wrap: wrap; }
 
     /* ---------- Animated Tricolor Accent ---------- */
     .tricolor-bar {
@@ -653,6 +698,21 @@ twinbit_logo_html = (
     '<div style="font-size:2.6rem; text-align:right;">⚡</div>'
 )
 
+st.markdown("""
+    <div class="gov-utility-bar">
+        <div class="gov-utility-left">
+            <a>Skip to Main Content</a>
+            <a>Screen Reader Access</a>
+            <span class="util-btn">A-</span><span class="util-btn">A</span><span class="util-btn">A+</span>
+        </div>
+        <div class="gov-utility-right">
+            <a>हिंदी | English</a>
+            <a>Sitemap</a>
+            <a>Helpline: 14447</a>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
 st.markdown('<div class="tricolor-bar"></div>', unsafe_allow_html=True)
 
 st.markdown(f"""
@@ -661,7 +721,7 @@ st.markdown(f"""
             <div style="flex:0 0 auto;">{samridh_logo_html}</div>
             <div style="flex:1 1 auto; text-align:center; min-width:280px;">
                 <div class="gov-chip">🇮🇳&nbsp; GOVERNMENT OF INDIA &nbsp;|&nbsp; MINISTRY OF AGRICULTURE &amp; FARMERS WELFARE</div>
-                <div class="hero-title"><span class="hindi-part">समृद्धि</span> <span class="brand-part">SAMRIDH</span> <span class="hindi-part">PORTAL</span></div>
+                <div class="hero-title"><span class="hindi-part">समृद्ध</span> <span class="brand-part">SAMRIDH</span> <span class="hindi-part">PORTAL</span></div>
                 <p class="hero-subtitle">AI-Based Real-Time Crop Visual Analytics &amp; Fraud-Resistant Loss Verification Platform</p>
                 <p class="hero-caption">An Initiative under Pradhan Mantri Fasal Bima Yojana (PMFBY) &nbsp;•&nbsp; Developed &amp; Maintained by <b>Team TwinBit</b></p>
                 <div class="scheme-ribbon">
