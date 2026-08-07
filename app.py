@@ -128,25 +128,57 @@ st.markdown("""
     }
 
     .hero-title {
-        margin: 10px 0 4px 0;
-        color: #FFFFFF;
+        margin: 12px 0 6px 0;
         font-family: 'Poppins', sans-serif;
         font-weight: 800;
-        font-size: 2.15rem;
+        font-size: 2.5rem;
         letter-spacing: -0.02em;
-        text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        line-height: 1.15;
+    }
+    .hero-title .hindi-part {
+        color: #FFFFFF;
+        text-shadow: 0 2px 14px rgba(0,0,0,0.35);
+    }
+    .hero-title .brand-part {
+        background: linear-gradient(90deg, #FFA940 0%, #FFD873 30%, #5EEAD4 65%, #38BDF8 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: #FFD873;
+        animation: gradientFlow 5s ease infinite;
+        filter: drop-shadow(0 2px 10px rgba(94, 234, 212, 0.35));
     }
     .hero-subtitle {
         margin: 0;
-        color: #93C5FD;
-        font-weight: 600;
-        font-size: 1.0rem;
+        color: #7DD3FC;
+        font-weight: 700;
+        font-size: 1.06rem;
+        letter-spacing: 0.01em;
     }
     .hero-caption {
-        margin-top: 6px;
-        color: rgba(226, 232, 240, 0.75);
-        font-size: 0.82rem;
+        margin-top: 8px;
+        color: rgba(226, 232, 240, 0.82);
+        font-size: 0.83rem;
         font-weight: 500;
+    }
+    .scheme-ribbon {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 14px;
+    }
+    .scheme-chip {
+        background: rgba(255, 255, 255, 0.10);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        color: #E2E8F0;
+        padding: 5px 13px;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        backdrop-filter: blur(4px);
     }
 
     /* ---------- Welcome / Landing Card ---------- */
@@ -595,17 +627,32 @@ with header_mid:
     st.markdown("""
         <div style="text-align: center;">
             <div class="gov-chip">🇮🇳&nbsp; GOVERNMENT OF INDIA &nbsp;|&nbsp; MINISTRY OF AGRICULTURE &amp; FARMERS WELFARE</div>
-            <div class="hero-title">समृद्ध (SAMRIDH) PORTAL</div>
+            <div class="hero-title"><span class="hindi-part">समृद्धि</span> <span class="brand-part">SAMRIDH</span> <span class="hindi-part">PORTAL</span></div>
             <p class="hero-subtitle">AI-Based Real-Time Crop Visual Analytics &amp; Fraud-Resistant Loss Verification Platform</p>
-            <p class="hero-caption">PMFBY CROPIC Infrastructure &nbsp;•&nbsp; Designed by <b>Team TwinBit</b> (ID: <b>svh-10104</b> | PS: <b>SVH26007</b>)</p>
+            <p class="hero-caption">An Initiative under Pradhan Mantri Fasal Bima Yojana (PMFBY) &nbsp;•&nbsp; Developed &amp; Maintained by <b>Team TwinBit</b></p>
+            <div class="scheme-ribbon">
+                <span class="scheme-chip">🌾 PMFBY</span>
+                <span class="scheme-chip">💰 PM-KISAN</span>
+                <span class="scheme-chip">🧪 Soil Health Card</span>
+                <span class="scheme-chip">🛰️ CROPIC Satellite Mission</span>
+                <span class="scheme-chip">🖥️ Digital India</span>
+                <span class="scheme-chip">🏦 Direct Benefit Transfer</span>
+            </div>
         </div>
     """, unsafe_allow_html=True)
 
 with header_right:
+    twinbit_jpeg = os.path.join("images", "twinbit_logo.jpeg")
     twinbit_jpg = os.path.join("images", "twinbit_logo.jpg")
-    if os.path.exists(twinbit_jpg):
+    if os.path.exists(twinbit_jpeg):
+        st.image(twinbit_jpeg, width=110)
+    elif os.path.exists(twinbit_jpg):
+        twinbit_jpeg = twinbit_jpg
         st.image(twinbit_jpg, width=110)
+    elif os.path.exists("twinbit_logo.jpeg"):
+        st.image("twinbit_logo.jpeg", width=110)
     elif os.path.exists("twinbit_logo.jpg"):
+        twinbit_jpeg = "twinbit_logo.jpg"
         st.image("twinbit_logo.jpg", width=110)
     else:
         st.markdown("<div style='font-size: 2.6rem; margin:0; text-align:right;'>⚡</div>", unsafe_allow_html=True)
@@ -620,8 +667,8 @@ st.sidebar.markdown("""
     <p class="sidebar-caption">Select your access portal role below</p>
 """, unsafe_allow_html=True)
 
-if os.path.exists(twinbit_jpg):
-    st.sidebar.image(twinbit_jpg, width=90)
+if os.path.exists(twinbit_jpeg):
+    st.sidebar.image(twinbit_jpeg, width=90)
 
 if st.session_state.authenticated:
     _initials = "".join([p[0] for p in st.session_state.current_user.split()[:2]]).upper() if st.session_state.current_user else "U"
@@ -1105,16 +1152,27 @@ st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
 st.markdown("""
     <div class="footer-box">
         <p style="margin: 0; font-weight: 700; color: #0F172A;">
-            🌾 SAMRIDH Continuous Visual Ledger Platform | PMFBY CROPIC Initiative
+            🌾 SAMRIDH — Continuous Visual Ledger Platform | PMFBY CROPIC Initiative
         </p>
         <p style="margin: 4px 0 0 0; color: #64748B;">
-            Ministry of Agriculture &amp; Farmers Welfare, Government of India<br>
-            Built for Smart VIT Hackathon 2026 | <b>Team TwinBit</b> (Team ID: <b>svh-10104</b> | Problem Statement: <b>SVH26007</b>)
+            Department of Agriculture &amp; Farmers Welfare, Ministry of Agriculture, Government of India<br>
+            Designed, Developed &amp; Maintained by <b>Team TwinBit</b>
         </p>
-        <div class="footer-badges">
-            <span class="badge-status badge-verified">🇮🇳 Govt. of India Initiative</span>
-            <span class="badge-status badge-approved">🛡️ WCAG 2.2 Accessible</span>
-            <span class="badge-status badge-pending">v1.0 CROPIC</span>
+        <div class="footer-links">
+            <a href="#">About PMFBY</a>
+            <a href="#">Farmer Grievance Portal</a>
+            <a href="#">Terms of Use</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Accessibility Statement</a>
+            <a href="#">RTI &amp; Citizen Charter</a>
         </div>
+        <div class="footer-badges">
+            <span class="badge-status badge-verified">🇮🇳 Government of India Portal</span>
+            <span class="badge-status badge-approved">🛡️ WCAG 2.2 Accessible</span>
+            <span class="badge-status badge-pending">🔒 Aadhaar-Secured Gateway</span>
+        </div>
+        <p style="margin-top: 14px; color: #94A3B8; font-size: 0.72rem;">
+            © 2026 SAMRIDH Portal, Government of India. All Rights Reserved. | Best viewed in latest browser versions.
+        </p>
     </div>
 """, unsafe_allow_html=True)
